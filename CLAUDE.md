@@ -171,6 +171,15 @@ Do not ship an export that guesses any of these. A wrong spec produces files tha
 - **Auth method:** **magic link (passwordless email OTP)** — no passwords/reset flows.
 - **Rationale:** owner has DevOps capacity (so simplicity wasn't the deciding factor), but the project's risk lives in the engine + print quality, not infra. Supabase gets a privacy-correct data layer fast and cheap (~$25/mo), on AWS, with a bounded migration path to full-AWS-native later if scale/compliance ever forces it. Cost at pilot scale was a wash between the two; the deciding factors were speed-to-validate + data residency + where DevOps effort is best spent (the Fargate print pipeline).
 
+### Phase 2 — BUILT (engine + preview, placeholder templates)
+- Scope delivered: the deterministic layout engine + full album preview.
+  - **Template format** (`src/lib/engine/`): a theme = 30 leaves (each with a fixed slot count) + an archetype library (1-portrait hero / framed-landscape / 2-portrait / 2-landscape / portrait+landscape / 4-up grid), slot maps in a leaf pixel canvas. Pure data — the clean design/code boundary (brief §5, §12).
+  - **Engine** (`layout.ts`): sort photos chronologically (EXIF date, upload-order tiebreaker) → walk leaves → for each leaf pick the same-slot-count archetype whose slot orientations best match the next N photos → assign + advance. No AI, deterministic.
+  - **Preview** (`/albums/[orderId]/preview`): renders all 30 leaves with photos cover-cropped into slots, flowing oldest-first. Reached via "Preview your album" on the upload page.
+- Placeholder art: leaf backgrounds are themed colour washes; **real background art + slot maps replace `src/lib/engine/templates.ts` with no engine changes.** Leaf dims 1200×1200 square (final dims come from printer, §8).
+- Under-cap: trailing slots render as visible "empty" placeholders (honest preview); the §13 under-cap *submission* decision is still owed.
+- NOT built here: the editor (swap/reposition — Phase 3), resolution warnings, payments, print export.
+
 ### Phase 1 — BUILT (awaiting owner test)
 - Scope delivered: magic-link auth + route gating, theme picker (placeholder themes seeded in DB), capped direct-to-private-storage upload, server-side EXIF read + HEIC→WebP display-derivative generation + resolution capture, EXIF-sorted preview grid, per-photo delete.
 - Upload cap: `NEXT_PUBLIC_UPLOAD_CAP` (placeholder **56**), and per-theme `themes.slot_count` (also 56). Server enforces the cap as source of truth.

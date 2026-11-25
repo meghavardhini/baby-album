@@ -94,6 +94,17 @@ export default async function AlbumPage({
           photo was taken.
         </p>
 
+        {count > 0 && (
+          <div className="mt-4">
+            <Link
+              href={`/albums/${orderId}/preview`}
+              className="inline-block rounded-lg bg-sage px-5 py-2.5 font-medium text-white transition hover:bg-sage/90"
+            >
+              Preview your album →
+            </Link>
+          </div>
+        )}
+
         <div className="mt-8">
           <Uploader
             orderId={orderId}
